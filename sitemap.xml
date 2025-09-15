@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://dreez-cell.github.io/dreez-cell</loc>
+    <lastmod>2025-09-15T12:18:00+03:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <!-- Add article URLs dynamically from generateSitemap -->
+</urlset>
