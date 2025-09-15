@@ -33,9 +33,11 @@
     }
   }
   </script>
+  <!-- Ad Script (Loaded Once) -->
+  <script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    /* Original CSS unchanged */
+    /* Original CSS */
     body {font-family: Arial, sans-serif; margin:0; padding:0; background:#121212; color:#f5f5f5;}
     .header {background:#1f1f1f; color:#ff9800; text-align:center; padding:15px 0; font-size:28px; font-weight:bold; border-bottom:2px solid #333; position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:15px;}
     .logo {display: flex;align-items: center;justify-content: center;gap: 10px;}
@@ -130,7 +132,6 @@
     body.light-theme ::-webkit-scrollbar-thumb {background: #ff9800;}
     body.light-theme ::-webkit-scrollbar-thumb:hover {background: #ffb74d;}
     .comments-section {border-top: 1px solid #333; margin-top: 15px; padding-top: 10px; background: transparent;}
-    /* New CSS for Vertical Video Modal */
     .video-modal {display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; scroll-snap-type: y mandatory;}
     .video-modal.active {display: block;}
     .video-container {width: 100%; height: 100vh; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; position: relative;}
@@ -142,6 +143,14 @@
     body.light-theme .video-title {background: rgba(255, 152, 0, 0.8); color: #fff;}
     body.light-theme .close-modal {background: #ff9800; color: #fff;}
     body.light-theme .close-modal:hover {background: #ffb74d;}
+    /* Ad Styling */
+    .ad-container {margin: 20px auto; max-width: 728px; text-align: center;}
+    .ad-container ins {display: block; margin: 0 auto;}
+    @media (max-width: 768px) {
+      .ad-container {margin: 10px auto;}
+      .ad-container ins {width: 100%; max-width: 320px;}
+    }
+    body.light-theme .ad-container {background: #fff;}
   </style>
 </head>
 <body>
@@ -165,11 +174,15 @@
       </button>
     </div>
   </div>
+  <!-- First Ad Placement: Below Search Bar -->
+  <div class="ad-container">
+    <ins class="eas6a97888e31" data-zoneid="5123446"></ins>
+    <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+  </div>
   <div class="categories-container" id="categories-container">
     <div class="category active" data-category="all">All News</div>
   </div>
   <div class="stories-container" id="stories-container"></div>
-  <!-- New Video Modal for Vertical Scrolling -->
   <div class="video-modal" id="videoModal">
     <button class="close-modal" id="closeModal"><i class="fas fa-times"></i></button>
     <div id="videoFeed"></div>
@@ -198,9 +211,7 @@
       setTheme(isLight ? "dark" : "light");
     });
 
-    // Updated RSS Feeds with Additional YouTube Channels
     const rssSources = [
-      // World News
       {"url":"https://feeds.bbci.co.uk/news/world/rss.xml","name":"BBC World","category":"World"},
       {"url":"https://rss.cnn.com/rss/edition_world.rss","name":"CNN World","category":"World"},
       {"url":"https://rss.nytimes.com/services/xml/rss/nyt/World.xml","name":"NYT World","category":"World"},
@@ -330,7 +341,6 @@
       {"url":"https://rss.nytimes.com/services/xml/rss/nyt/US.xml","name":"NYT US News","category":"Americas"},
       {"url":"https://www.usatoday.com/rss/news/","name":"USA Today News","category":"Americas"},
       {"url":"https://feeds.washingtonpost.com/rss/world","name":"Washington Post World","category":"Americas"},
-      // New YouTube RSS Feeds
       {"url":"https://www.youtube.com/feeds/videos.xml?channel_id=UCupvZG-5ko_eiXAupbDfxWw","name":"CNN Videos","category":"Videos"},
       {"url":"https://www.youtube.com/feeds/videos.xml?channel_id=UCEUp6a9V0V1C_vgW2N8jw","name":"BBC News Videos","category":"Videos"},
       {"url":"https://www.youtube.com/feeds/videos.xml?channel_id=UC16niRr50-MSBwiO3YDb3RA","name":"Al Jazeera English Videos","category":"Videos"},
@@ -430,7 +440,7 @@
         return;
       }
       const itemsToShow = filteredItems.slice(0, visibleItems);
-      itemsToShow.forEach((item) => {
+      itemsToShow.forEach((item, index) => {
         const cleanDescription = stripHtml(item.description || item.content);
         const imageUrl = item.thumbnail ||
                         extractImage(item.content) ||
@@ -458,6 +468,17 @@
           </div>
         `;
         container.appendChild(rssItem);
+        // Second Ad Placement: After Every 5 News Items
+        if ((index + 1) % 5 === 0 && index + 1 < itemsToShow.length) {
+          const adDiv = document.createElement("div");
+          adDiv.className = "ad-container";
+          adDiv.style.gridColumn = "1 / -1"; // Span full width
+          adDiv.innerHTML = `
+            <ins class="eas6a97888e37" data-zoneid="5168782"></ins>
+            <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+          `;
+          container.appendChild(adDiv);
+        }
       });
       if (filteredItems.length > visibleItems) {
         const loadMoreDiv = document.createElement("div");
@@ -472,6 +493,10 @@
       }
       lazyLoadImages();
       if (window.FB) window.FB.XFBML.parse();
+      // Ensure ads are rendered
+      if (window.AdProvider) {
+        window.AdProvider.push({"serve": {}});
+      }
     }
     function renderStories() {
       const storiesContainer = document.getElementById("stories-container");
@@ -514,7 +539,6 @@
       modal.classList.add("active");
       document.body.style.overflow = "hidden";
       autoPlayVideos();
-      // Scroll to the selected video
       const selectedIndex = videoItems.findIndex(v => v.link === item.link);
       if (selectedIndex !== -1) {
         const videoContainers = videoFeed.querySelectorAll(".video-container");
@@ -586,8 +610,6 @@
   `).join('')}
 </urlset>`;
       console.log("Sitemap generated. Save this to sitemap.xml:", sitemap);
-      // To actually save the sitemap, you would need server-side logic or manual file creation
-      // For GitHub Pages, create a sitemap.xml file in the repository root with this content
     }
     async function loadWorldNews() {
       const loadingElement = document.getElementById("loading");
@@ -665,7 +687,6 @@
       window.addEventListener('load', loadAllImages);
       window.addEventListener('scroll', loadAllImages);
     }
-    // Swipe Support for Video Modal
     let touchStartY = 0;
     let touchEndY = 0;
     document.getElementById("videoModal").addEventListener("touchstart", e => {
@@ -674,7 +695,6 @@
     document.getElementById("videoModal").addEventListener("touchend", e => {
       touchEndY = e.changedTouches[0].screenY;
       if (touchStartY - touchEndY > 50) {
-        // Swipe up
         const modal = document.getElementById("videoFeed");
         const nextVideo = modal.querySelector(".video-container:not(:last-child)");
         if (nextVideo) {
@@ -682,7 +702,6 @@
         }
       }
       if (touchEndY - touchStartY > 50) {
-        // Swipe down
         const modal = document.getElementById("videoFeed");
         const prevVideo = modal.querySelector(".video-container:not(:first-child)");
         if (prevVideo) {
@@ -692,4 +711,4 @@
     });
   </script>
 </body>
-</html>
+</html>                              
